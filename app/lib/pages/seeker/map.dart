@@ -62,9 +62,6 @@ class _MapRouteState extends State<MapRoute> {
               children: [
                 Expanded(
                   child: Center(
-                    // child: NetworkImage(
-                    //   "${maproom['img'][0]}",
-                    // ),
                     child: Hero(
                       tag: "${maproom['roomId']}",
                       child: FadeInImage(
