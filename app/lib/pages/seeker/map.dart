@@ -1,12 +1,13 @@
 import 'dart:async';
 
+import 'package:app/pages/seeker/bottomSheet.dart';
+import 'package:app/pages/seeker/modalContent.dart';
 import 'package:app/shared/globals.dart';
 import 'package:bottom_sheet/bottom_sheet.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_flutter_platform_interface/src/types/camera.dart';
 
 class MapRoute extends StatefulWidget {
   final String title;
@@ -24,11 +25,11 @@ class _MapRouteState extends State<MapRoute> {
   var aaa = "false";
   List<Map<String, dynamic>> room = [];
   Set<Marker> allMarkers = {};
+
   @override
-  void initState() {
-    super.initState();
-    // setCustomMarkerIcon();
+  void didChangeDependencies() async {
     gettingRooms();
+    super.didChangeDependencies();
   }
 
   // BitmapDescriptor customIcon;
@@ -39,63 +40,39 @@ class _MapRouteState extends State<MapRoute> {
   // }
 
   void _showModal(Map<String, dynamic> maproom) {
-    Future<void> future = showStickyFlexibleBottomSheet<void>(
+    var size = MediaQuery.of(context).size;
+    // Future<void> future =
+    showStickyFlexibleBottomSheet(
       minHeight: 0,
       initHeight: 0.5,
-      maxHeight: 1,
-      headerHeight: 200,
+      maxHeight: 0.9,
+      headerHeight: size.height * 0.3,
       context: context,
-      headerBuilder: (context, offset) {
-        return AnimatedContainer(
-            duration: const Duration(milliseconds: 300),
-            width: double.infinity,
-            height: 200,
-            decoration: BoxDecoration(
-              color: Global.theme1,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(offset == 0.8 ? 0 : 40),
-                topRight: Radius.circular(offset == 0.8 ? 0 : 40),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Center(
-                    child: Hero(
-                      tag: "${maproom['roomId']}",
-                      child: FadeInImage(
-                          fit: BoxFit.fill,
-                          placeholder: AssetImage('assets/check.png'),
-                          image: (maproom['img'][0] != null)
-                              ? NetworkImage("${maproom['img'][0]}")
-                              : Image.asset('assets/check.png')),
-                    ),
-                    //   child: ExtendedNetworkImageProvider(
-                    //       roommap['img'][0].tostring()),
-                    // ),
-                    // style: Theme.of(context).textTheme.headline4,
-                  ),
-                ),
-                // ),
-              ],
-            ));
+      headerBuilder: (BuildContext context, double offset) {
+        return Container(
+          height: size.height * 0.35,
+          decoration: BoxDecoration(
+            color: Global.theme1,
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(30.0),
+                topRight: Radius.circular(30.0)),
+          ),
+          child: ModalImage(maproom['img']),
+        );
       },
       builder: (BuildContext context, double offset) {
         return SliverChildListDelegate(
           <Widget>[
-            Text('something'),
+            Column(
+              children: [
+                ModalContent(maproom),
+              ],
+            )
           ],
         );
       },
       anchors: [0, 0.5, 1],
     );
-    // );
-    future.then((void value) => _closeModal(value));
-  }
-
-  void _closeModal(void value) {
-    print('back.');
   }
 
   LatLng location;
@@ -112,24 +89,17 @@ class _MapRouteState extends State<MapRoute> {
 
           allMarkers.add(Marker(
               infoWindow: InfoWindow(
-                title: "${room[i]['street']}",
-                // snippet: "${room[i]['description'].toString()}"
-              ),
+                  title: "Number of Room : ${room[i]['numberofroom']} ",
+                  snippet: "Phone number: ${room[i]['phone'].toString()}"),
               markerId: MarkerId(room[i]['description']),
               position: location,
-              onTap: () {
-                // _showModal(room[i - 2]);
-              }));
+              onTap: () {}));
           i++;
-          // _pageController =
-          //     PageController(initialPage: 1, viewportFraction: 0.8)
-          //       ..addListener(_onScroll);
         }
       });
     }
   }
 
-  // PageController _pageController;
   gettingRooms() async {
     Stream<QuerySnapshot> _db = FirebaseFirestore.instance
         .collection("rooms")
@@ -148,7 +118,6 @@ class _MapRouteState extends State<MapRoute> {
       target: LatLng(lat, long),
       zoom: 20,
       tilt: 45.0,
-      // bearing: 45.0,
     )));
   }
 
@@ -160,7 +129,6 @@ class _MapRouteState extends State<MapRoute> {
       children: <Widget>[
         Container(
           height: height,
-          // -50
           width: width,
           child: GoogleMap(
               markers: allMarkers,
@@ -168,7 +136,6 @@ class _MapRouteState extends State<MapRoute> {
               initialCameraPosition: CameraPosition(
                 target: LatLng(26.797091768525963, 87.29033879308038),
                 zoom: 16.0,
-                // tilt: 30.0
               ),
               onMapCreated: (GoogleMapController controller) {
                 _controller.complete(controller);
@@ -178,7 +145,6 @@ class _MapRouteState extends State<MapRoute> {
             ? Positioned(
                 bottom: 15.0,
                 child: Container(
-                  // color: Colors.cyan[50],
                   height: height * 0.20,
                   width: width,
                   child: CarouselSlider.builder(
@@ -193,13 +159,6 @@ class _MapRouteState extends State<MapRoute> {
                       itemBuilder: (context, index, realIndex) {
                         return _boxes(room[index], index);
                       }),
-                  // PageView.builder(
-                  //   controller: _pageController,
-                  //   itemCount: room.length,
-                  //   itemBuilder: (BuildContext context, int index) {
-                  //     return _boxes(room[index], index);
-                  //   },
-                  // ),
                 ),
               )
             : SizedBox(width: 0, height: 0),
@@ -207,131 +166,118 @@ class _MapRouteState extends State<MapRoute> {
     );
   }
 
-  // void _onScroll() {
-  //   if (_pageController.page.toInt() != prevPage) {
-  //     prevPage = _pageController.page.toInt();
-  //   }
-  // }
-
   int prevPage;
   Widget _boxes(Map<String, dynamic> roommap, int index) {
-    // var size = MediaQuery.of(context).size;
     return GestureDetector(
-        onTap: () {
-          print(index);
-          _gotoLocation(double.parse(roommap['location'][0]),
-              double.parse(roommap['location'][1]));
-          _showModal(roommap);
-        },
-        child: Container(
-          child: Material(
-            color: Global.theme1,
-            elevation: 200.0,
-            borderRadius: BorderRadius.circular(24.0),
-            shadowColor: Color(0x802196F3),
-            child: Row(children: [
-              Expanded(
-                child: Hero(
-                  tag: "${roommap['roomId']}",
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(24.0),
-                      bottomLeft: Radius.circular(24.0),
-                    ),
-                    child: FadeInImage(
-                        fit: BoxFit.fill,
-                        placeholder: AssetImage(
-                          'assets/loadingif.gif',
-                        ),
-                        image: NetworkImage(
-                          "${roommap['img'][0]}",
-                        )),
+      onTap: () {
+        print(index);
+        _gotoLocation(double.parse(roommap['location'][0]),
+            double.parse(roommap['location'][1]));
+        _showModal(roommap);
+      },
+      child: (roommap['img'][0] != null)
+          ? Container(
+              child: Material(
+                color: Global.theme1,
+                elevation: 200.0,
+                borderRadius: BorderRadius.circular(24.0),
+                shadowColor: Color(0x802196F3),
+                child: Row(children: [
+                  Expanded(
+                    child: Hero(
+                        tag: "${roommap['roomId']}",
+                        child: (roommap['img'][0] != null)
+                            ? ClipRRect(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(24.0),
+                                  bottomLeft: Radius.circular(24.0),
+                                ),
+                                child: FadeInImage(
+                                    fit: BoxFit.fill,
+                                    placeholder: AssetImage(
+                                      'assets/loadingif.gif',
+                                    ),
+                                    image: NetworkImage(
+                                      "${roommap['img'][0]}",
+                                    )),
+                              )
+                            : Text('Loading')),
                   ),
-                ),
-              ),
-              Expanded(
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                  Expanded(
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "Number of room",
-                            style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Global.theme5),
-                          ),
-                          Text(
-                            "${roommap['numberofroom']}",
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text(
-                            "Price",
-                            style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Global.theme5),
-                          ),
-                          Text(
-                            "${roommap['price']}",
-                            style: TextStyle(
-                              fontSize: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text(
-                            "Street",
-                            style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: Global.theme5),
-                          ),
-                          Expanded(
-                            child: Text(
-                              "${roommap['street']}",
-                              style: TextStyle(
-                                fontSize: 15,
+                          Row(
+                            children: [
+                              Text(
+                                "Number of room",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Global.theme5),
                               ),
-                            ),
+                              Text(
+                                "${roommap['numberofroom']}",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      Row(
-                        // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text(
-                            ">>Tap here to contact<<",
-                            style: TextStyle(
-                                fontSize: 12,
-                                letterSpacing: 1.5,
-                                // fontWeight: FontWeight.bold,
-                                color: Colors.orange[200]),
+                          Row(
+                            children: [
+                              Text(
+                                "Price",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Global.theme5),
+                              ),
+                              Text(
+                                "${roommap['price']}",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ],
                           ),
-                          // Text(
-                          //   "${roommap['description'].substring(0, 2)}",
-                          //   style: TextStyle(
-                          //     fontSize: 10,
-                          //   ),
-                          // ),
-                        ],
-                      ),
-                    ]),
-              )
-            ]),
-          ),
-        ));
+                          Row(
+                            children: [
+                              Text(
+                                "Street",
+                                style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Global.theme5),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  "${roommap['street']}",
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Text(
+                                ">>Tap here to contact<<",
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    letterSpacing: 1.5,
+                                    color: Colors.orange[200]),
+                              ),
+                            ],
+                          ),
+                        ]),
+                  )
+                ]),
+              ),
+            )
+          : SizedBox(height: 0, width: 0),
+    );
   }
 }

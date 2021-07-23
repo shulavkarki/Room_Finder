@@ -19,6 +19,7 @@ class RoomProvider extends ChangeNotifier {
   String _gender;
   String _roomId;
   bool _published;
+  dynamic _time;
   var uuid = Uuid();
 
   //GETTERS
@@ -32,12 +33,18 @@ class RoomProvider extends ChangeNotifier {
   String get gender => _gender;
   bool get published => _published;
   List<dynamic> get neccessity => _neccessity;
+  dynamic get time => _time;
   String get roomId => _roomId;
 
   //SETTERS
 
   void changePrice(String value) {
     _price = int.parse(value);
+    notifyListeners();
+  }
+
+  void changeDateTime(dynamic value) {
+    _time = value;
     notifyListeners();
   }
 
@@ -92,6 +99,7 @@ class RoomProvider extends ChangeNotifier {
     _gender = room.gender;
     _neccessity = room.neccessity;
     _published = room.published;
+    _time = room.time;
     // _option = room.option;
     _roomId = room.roomId;
   }
@@ -101,8 +109,20 @@ class RoomProvider extends ChangeNotifier {
     var user = firebaseAuth.currentUser;
     debugPrint("Values: $_roomId $_price ");
     if (_roomId == null) {
-      var newRoom = RoomModel(uuid.v4(), price, phone, numberofroom, location,
-          street, images, description, gender, neccessity, true, user.uid);
+      var newRoom = RoomModel(
+          uuid.v4(),
+          price,
+          phone,
+          numberofroom,
+          location,
+          street,
+          images,
+          description,
+          gender,
+          neccessity,
+          true,
+          time,
+          user.uid);
       firestoreService.saveRoom(newRoom);
     } else {
       //Update
@@ -118,6 +138,7 @@ class RoomProvider extends ChangeNotifier {
           _gender,
           _neccessity,
           _published,
+          _time,
           user.uid);
       firestoreService.saveRoom(updateRoom);
     }
@@ -131,7 +152,7 @@ class RoomProvider extends ChangeNotifier {
     final firebaseAuth = FirebaseAuth.instance;
     var user = firebaseAuth.currentUser;
     var newRoom = RoomModel(uuid.v4(), price, phone, numberofroom, location,
-        street, images, description, gender, neccessity, true, user.uid);
+        street, images, description, gender, neccessity, true, time, user.uid);
     firestoreService.saveRoom(newRoom);
   }
 }

@@ -47,14 +47,14 @@ class _HomeState extends State<Home> {
               actions: <Widget>[
                 MaterialButton(
                   color: Colors.white,
-                  child: Text('No'),
+                  child: Text('No', style: TextStyle(color: Global.theme4)),
                   onPressed: () {
                     Navigator.of(context).pop(false);
                   },
                 ),
                 MaterialButton(
                   color: Global.theme3,
-                  child: Text('Yes'),
+                  child: Text('Yes', style: TextStyle(color: Colors.white)),
                   onPressed: () {
                     SystemNavigator.pop();
                   },

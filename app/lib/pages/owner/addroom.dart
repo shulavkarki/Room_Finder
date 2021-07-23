@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:app/models/rooms.dart';
+import 'package:app/shared/globals.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:app/provider/room_provider.dart';
@@ -106,7 +107,7 @@ class _AddRoomState extends State<AddRoom> {
           }));
 
       mapController.animateCamera(CameraUpdate.newCameraPosition(
-          CameraPosition(target: location, zoom: 17.0)));
+          CameraPosition(target: location, zoom: 16.0)));
     });
   }
 
@@ -436,8 +437,13 @@ class _AddRoomState extends State<AddRoom> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  Text('Address of Room:'),
-                  Text(_currentAddress.toString()),
+                  Text('Address of Room:',
+                      style: TextStyle(fontFamily: 'Poppins', fontSize: 15)),
+                  Text(_currentAddress.toString(),
+                      style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 16,
+                          color: Global.theme2)),
                   const SizedBox(height: 30),
                   FormBuilderCheckbox(
                     name: 'accept_terms',
@@ -468,7 +474,8 @@ class _AddRoomState extends State<AddRoom> {
                   ),
                   const SizedBox(height: 15),
                   MaterialButton(
-                    child: Text('Submit'),
+                    child:
+                        Text('Submit', style: TextStyle(color: Colors.white)),
                     color: Colors.cyan,
                     onPressed: () async {
                       _fbKey.currentState.save();
@@ -476,13 +483,15 @@ class _AddRoomState extends State<AddRoom> {
                         if (this.latitude != null &&
                             this.longitude != null &&
                             this._currentAddress != null) {
+                          DateTime currentPhoneDate = DateTime.now();
                           roomProvider.changeLocation(latitude, longitude);
                           roomProvider.changeStreet(_currentAddress);
+                          roomProvider.changeDateTime(currentPhoneDate);
                           roomProvider.addRoom();
                           Navigator.pop(context, true);
                           Flushbar(
                             message: "Saved!",
-                            duration: Duration(seconds: 1),
+                            duration: Duration(seconds: 2),
                             backgroundColor: Colors.green,
                           )..show(context);
                         }

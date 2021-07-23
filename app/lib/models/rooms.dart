@@ -9,6 +9,7 @@ class RoomModel {
   final String description;
   final String gender;
   final List<dynamic> neccessity;
+  dynamic time;
   bool published;
 
   // final List option;
@@ -26,6 +27,7 @@ class RoomModel {
       this.gender,
       this.neccessity,
       this.published,
+      this.time,
       this.userId);
 // String uid
   // List get option => null;
@@ -43,6 +45,7 @@ class RoomModel {
       'gender': gender,
       'neccessity': neccessity,
       'published': true,
+      'time': time,
       // 'option' : option,
       'userId': userId,
     };
@@ -60,5 +63,6 @@ class RoomModel {
         gender = firestore['gender'],
         neccessity = firestore['neccessity'],
         published = firestore['published'],
+        time = firestore['time'],
         userId = firestore['userId'];
 }

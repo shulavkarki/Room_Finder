@@ -19,6 +19,10 @@ version: 1.0.0+1
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
+# flutter_rave:
+#     git:
+#       url: https://github.com/shulavkarki/Room_Finder.git
+#       ref: master
 
 dependencies:
   flutter:
@@ -43,10 +47,10 @@ dependencies:
   connectivity:
   flushbar:
   flutter_form_builder: 
-  # intl: ^0.17.0
+  intl: ^0.17.0
   form_builder_image_picker: 
   geolocator: ^7.0.3
-  google_maps_flutter: ^2.0.3
+  google_maps_flutter:
   geocoding: ^2.0.0
   bottom_sheet: ^1.0.0
   overlay_support: ^1.2.1
@@ -54,6 +58,13 @@ dependencies:
   animated_splash_screen: ^1.1.0
   share: ^2.0.1
   carousel_slider: ^3.0.0
+  modal_bottom_sheet: ^2.0.0
+  expandable: ^5.0.1
+  url_launcher: ^6.0.3
+  # dio: 
+  # permission:
+  # google_map_polyline: 
+  flutter_polyline_points: ^ 1.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
