@@ -182,7 +182,7 @@ class _RoutePageState extends State<RoutePage> {
           initialCameraPosition: CameraPosition(
               target: LatLng(26.797091768525963, 87.29033879308038),
               zoom: 16.0),
-          mapType: MapType.hybrid,
+          mapType: MapType.normal,
         ));
   }
 }

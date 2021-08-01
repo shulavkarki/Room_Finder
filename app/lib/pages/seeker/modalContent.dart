@@ -8,6 +8,7 @@ import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
 import 'icons/icon1.dart';
 import 'icons/icon3.dart';
 import 'icons/icon4.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class ModalContent extends StatefulWidget {
   final Map<String, dynamic> maproom;
@@ -21,8 +22,20 @@ class _ModalContentState extends State<ModalContent> {
   List<String> features;
   @override
   void initState() {
+    setTime();
     print(widget.maproom['neccessity'].length);
+
+    // print(dateNow);
     super.initState();
+  }
+
+  var publishedTime;
+  void setTime() {
+    var now = new DateTime.now();
+    var difference = now.difference(widget.maproom['time'].toDate());
+    setState(() {
+      publishedTime = timeago.format(now.subtract(difference));
+    });
   }
 
   TValue case2<TOptionType, TValue>(
@@ -39,6 +52,8 @@ class _ModalContentState extends State<ModalContent> {
 
   @override
   Widget build(BuildContext context) {
+    // DateTime dateNow = widget.maproom['time'].toDate();
+    // DateTime dateNow = widget.maproom['time'];
     var size = MediaQuery.of(context).size;
     return Container(
       // height: size.height * 1,
@@ -155,7 +170,7 @@ class _ModalContentState extends State<ModalContent> {
           ),
           ListTile(
             leading: const Icon(Icons.timer, color: Global.theme4, size: 25),
-            title: Text(widget.maproom['time'].toString()),
+            title: Text(publishedTime.toString()),
           ),
           Divider(height: 10, thickness: 1.5),
           Padding(

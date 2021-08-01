@@ -1,4 +1,5 @@
 import 'dart:async';
+// import 'dart:convert';
 
 import 'package:app/pages/seeker/bottomSheet.dart';
 import 'package:app/pages/seeker/modalContent.dart';
@@ -8,6 +9,9 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:material_floating_search_bar/material_floating_search_bar.dart';
+import 'package:blinking_text/blinking_text.dart';
+import 'package:http/http.dart' as http;
 
 class MapRoute extends StatefulWidget {
   final String title;
@@ -25,6 +29,7 @@ class _MapRouteState extends State<MapRoute> {
   var aaa = "false";
   List<Map<String, dynamic>> room = [];
   Set<Marker> allMarkers = {};
+  // LocationResult _pickedLocation;
 
   @override
   void didChangeDependencies() async {
@@ -76,6 +81,8 @@ class _MapRouteState extends State<MapRoute> {
   }
 
   LatLng location;
+  String apiKey = "AIzaSyCV87da7EMKy3Y3fUSyup4hMr4Pg9CNhAE";
+
   int i = 0;
   saveData(dynamic value, int length) {
     // int i = 0;
@@ -121,6 +128,28 @@ class _MapRouteState extends State<MapRoute> {
     )));
   }
 
+  void placeList(String placeName) async {
+    if (placeName.length > 1) {
+      // String autoComplete =
+      //     "https://maps.googleapis.com/maps/api/place/autocomplete/xml?input=$placeName&types=establishment&location=26.797091768525963, 87.29033879308038&radius=500&strictbounds&key=$apiKey";
+      final res = await http.get(Uri.parse(
+          'https://maps.googleapis.com/maps/api/place/autocomplete/xml?input=$placeName&types=establishment&location=26.797091768525963, 87.29033879308038&radius=500&strictbounds&key=$apiKey'));
+      if (res.statusCode == 200) {
+        print(res);
+      } else
+        throw Exception('Failed to load Places.');
+    }
+  }
+
+  int count = 0;
+  List maptype = [
+    MapType.normal,
+    MapType.hybrid,
+    MapType.terrain,
+    MapType.satellite,
+  ];
+  // mapType = MapType.normal;
+
   @override
   Widget build(BuildContext context) {
     double height = MediaQuery.of(context).size.height;
@@ -132,7 +161,7 @@ class _MapRouteState extends State<MapRoute> {
           width: width,
           child: GoogleMap(
               markers: allMarkers,
-              mapType: MapType.hybrid,
+              mapType: maptype[count],
               initialCameraPosition: CameraPosition(
                 target: LatLng(26.797091768525963, 87.29033879308038),
                 zoom: 16.0,
@@ -141,11 +170,12 @@ class _MapRouteState extends State<MapRoute> {
                 _controller.complete(controller);
               }),
         ),
+        buildFloatingSearchBar(),
         (room != null)
             ? Positioned(
                 bottom: 15.0,
                 child: Container(
-                  height: height * 0.20,
+                  height: height * 0.18,
                   width: width,
                   child: CarouselSlider.builder(
                       itemCount: room.length,
@@ -184,100 +214,180 @@ class _MapRouteState extends State<MapRoute> {
                 shadowColor: Color(0x802196F3),
                 child: Row(children: [
                   Expanded(
-                    child: Hero(
-                        tag: "${roommap['roomId']}",
-                        child: (roommap['img'][0] != null)
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(24.0),
-                                  bottomLeft: Radius.circular(24.0),
-                                ),
-                                child: FadeInImage(
-                                    fit: BoxFit.fill,
-                                    placeholder: AssetImage(
-                                      'assets/loadingif.gif',
-                                    ),
-                                    image: NetworkImage(
-                                      "${roommap['img'][0]}",
-                                    )),
-                              )
-                            : Text('Loading')),
-                  ),
+                      child:
+                          // (roommap['img'][0] != null)
+                          //     ?
+                          ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(24.0),
+                      bottomLeft: Radius.circular(24.0),
+                    ),
+                    child: FadeInImage(
+                        fit: BoxFit.fill,
+                        placeholder: AssetImage(
+                          'assets/loadingif.gif',
+                        ),
+                        image: NetworkImage(
+                          // "check.png"
+                          "${roommap['img'][0]}",
+                        )),
+                  )
+                      // : Text('Loading'),
+                      ),
                   Expanded(
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text(
-                                "Number of room",
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Global.theme5),
-                              ),
-                              Text(
-                                "${roommap['numberofroom']}",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                "Price",
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Global.theme5),
-                              ),
-                              Text(
-                                "${roommap['price']}",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                "Street",
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                    color: Global.theme5),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  "${roommap['street']}",
+                    child: Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  "Room",
                                   style: TextStyle(
-                                    fontSize: 15,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                      color: Global.theme5),
+                                ),
+                                SizedBox(
+                                  width: 8.0,
+                                ),
+                                Text(
+                                  "${roommap['numberofroom']}",
+                                  style: TextStyle(
+                                      fontSize: 16, color: Global.theme5),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  "Price",
+                                  style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                      color: Global.theme5),
+                                ),
+                                SizedBox(
+                                  width: 8.0,
+                                ),
+                                Text(
+                                  "${roommap['price']}",
+                                  style: TextStyle(
+                                      fontSize: 16, color: Global.theme5),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  "Street",
+                                  style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                      color: Global.theme5),
+                                ),
+                                SizedBox(
+                                  width: 8.0,
+                                ),
+                                Expanded(
+                                  child: Text(
+                                    "${roommap['street']}",
+                                    style: TextStyle(
+                                        fontSize: 15, color: Global.theme5),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                ">>Tap here to contact<<",
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    letterSpacing: 1.5,
-                                    color: Colors.orange[200]),
-                              ),
-                            ],
-                          ),
-                        ]),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                BlinkText(
+                                  '<<<  Tap to expand.  >>>',
+                                  style: TextStyle(
+                                      fontSize: 12.0, color: Colors.orange),
+                                  endColor: Colors.orange[900],
+                                ),
+                              ],
+                            ),
+                          ]),
+                    ),
                   )
                 ]),
               ),
             )
           : SizedBox(height: 0, width: 0),
+    );
+  }
+
+  Widget buildFloatingSearchBar() {
+    final isPortrait =
+        MediaQuery.of(context).orientation == Orientation.portrait;
+
+    return FloatingSearchBar(
+      hint: 'Search...',
+      scrollPadding: const EdgeInsets.only(top: 16, bottom: 56),
+      transitionDuration: const Duration(milliseconds: 800),
+      transitionCurve: Curves.easeInOut,
+      physics: const BouncingScrollPhysics(),
+      axisAlignment: isPortrait ? 0.0 : -1.0,
+      openAxisAlignment: 0.0,
+      width: isPortrait ? 600 : 500,
+      debounceDelay: const Duration(milliseconds: 500),
+      onQueryChanged: (query) {
+        print(query);
+        placeList(query);
+      },
+      // Specify a custom transition to be used for
+      // animating between opened and closed stated.
+      transition: CircularFloatingSearchBarTransition(),
+      actions: [
+        FloatingSearchBarAction(
+          showIfOpened: false,
+          child: CircularButton(
+            icon: const Icon(Icons.place),
+            onPressed: () {
+              setState(() {
+                if (count == 3) {
+                  count = 0;
+                }
+                count++;
+              });
+            },
+          ),
+        ),
+        FloatingSearchBarAction.searchToClear(
+          showIfClosed: false,
+        ),
+      ],
+      builder: (context, transition) {
+        return ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Material(
+                color: Colors.white,
+                elevation: 4.0,
+                child:
+                    // ListView.builder(
+                    //       itemBuilder: (context, index) => ListTile(
+                    //         // we will display the data returned from our future here
+                    //         title:
+                    //             Text(snapshot.data[index]),
+                    //         onTap: () {
+                    //           close(context, snapshot.data[index]);
+                    //         },
+                    //       ),
+                    //       itemCount: snapshot.data.length,
+                    //     )
+                    // : Container(child: Text('Loading...')),
+                    Container())
+            //     Column(
+            //   mainAxisSize: MainAxisSize.min,
+            //   children: Colors.accents.map((color) {
+            //     return Container(height: 112, color: color);
+            //   }).toList(),
+            // ),
+            );
+      },
     );
   }
 }

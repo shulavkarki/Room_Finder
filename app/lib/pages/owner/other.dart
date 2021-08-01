@@ -1,11 +1,22 @@
 // import 'package:flushbar/flushbar.dart';
 // import 'package:app/pages/auth/chooseform.dart';
 import 'package:app/pages/auth/service/auth_service.dart';
+import 'package:app/pages/owner/teams.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share/share.dart';
+import 'package:email_launcher/email_launcher.dart';
 
 class Other extends StatelessWidget {
+  final Email email = Email(
+    body: 'Email body',
+    subject: 'Email subject',
+    to: ['shulavkarki888@gmail.com'],
+    cc: ['cc@example.com'],
+    bcc: ['bcc@example.com'],
+    // attachmentPaths: ['/path/to/attachment.zip'],
+    // isHTML: false,
+  );
   @override
   Widget build(BuildContext context) {
     // double width = MediaQuery.of(context).size.width;
@@ -14,12 +25,17 @@ class Other extends StatelessWidget {
           backgroundColor: Colors.cyan[300],
         ),
         body: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(25.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ListTile(
-                leading: const Icon(Icons.info),
+                leading:
+                    // CircleAvatar(
+                    //   backgroundImage: NetworkImage(
+                    //       'https://www.woolha.com/media/2020/03/eevee.png'),
+                    // ),
+                    const Icon(Icons.info),
                 title: Text('About'),
                 // trailing: Icon(Icons.time_to_leave),
                 onTap: () {},
@@ -33,10 +49,14 @@ class Other extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.contact_mail),
-                title: Text('Contact us'),
+                leading: const Icon(Icons.group),
+                title: Text('Teams'),
                 // trailing: Icon(Icons.time_to_leave),
-                onTap: () {},
+                onTap: () {
+                  // EmailLauncher.launch(email);
+                  Navigator.push(
+                      context, MaterialPageRoute(builder: (context) => Team()));
+                },
               ),
               ListTile(
                 leading: const Icon(Icons.policy),

@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:app/models/rooms.dart';
 import 'package:app/shared/globals.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/foundation.dart';
 import 'package:app/provider/room_provider.dart';
@@ -291,7 +293,7 @@ class _AddRoomState extends State<AddRoom> {
                     allowClear: true,
                     validator: FormBuilderValidators.compose(
                         [FormBuilderValidators.required(context)]),
-                    items: ['Male', 'Female', 'Both']
+                    items: ['Male', 'Female', 'Any']
                         .map((gender) => DropdownMenuItem(
                             value: gender, child: Text("$gender")))
                         .toList(),
@@ -376,7 +378,7 @@ class _AddRoomState extends State<AddRoom> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Mark the house or mark the street or use current location if youre around the house. ',
+                          "Mark the house or mark the street or use current location if you're around the house. ",
                           // 'Mark the house in Map or Use your current location if you re on the current vacant room location by clickin on the buttom which is in the bottom left corner.',
                           style:
                               TextStyle(color: Colors.blueGrey, fontSize: 15),
@@ -438,12 +440,12 @@ class _AddRoomState extends State<AddRoom> {
                   ),
                   const SizedBox(height: 30),
                   Text('Address of Room:',
-                      style: TextStyle(fontFamily: 'Poppins', fontSize: 15)),
+                      style: TextStyle(fontFamily: 'Poppins', fontSize: 17)),
                   Text(_currentAddress.toString(),
                       style: TextStyle(
                           fontFamily: 'Poppins',
-                          fontSize: 16,
-                          color: Global.theme2)),
+                          fontSize: 15,
+                          color: Global.theme4)),
                   const SizedBox(height: 30),
                   FormBuilderCheckbox(
                     name: 'accept_terms',
@@ -483,10 +485,11 @@ class _AddRoomState extends State<AddRoom> {
                         if (this.latitude != null &&
                             this.longitude != null &&
                             this._currentAddress != null) {
-                          DateTime currentPhoneDate = DateTime.now();
+                          // var now = DateTime.now();
+                          Timestamp now = Timestamp.now();
                           roomProvider.changeLocation(latitude, longitude);
                           roomProvider.changeStreet(_currentAddress);
-                          roomProvider.changeDateTime(currentPhoneDate);
+                          roomProvider.changeDateTime(now);
                           roomProvider.addRoom();
                           Navigator.pop(context, true);
                           Flushbar(
@@ -494,15 +497,13 @@ class _AddRoomState extends State<AddRoom> {
                             duration: Duration(seconds: 2),
                             backgroundColor: Colors.green,
                           )..show(context);
+                        } else {
+                          Flushbar(
+                            message: "You must provide location.",
+                            duration: Duration(seconds: 2),
+                            backgroundColor: Colors.orange[200],
+                          )..show(context);
                         }
-                        // else {
-                        //   print('this is running.');
-                        //    roomProvider.changeLocation(
-                        //       latitude, longitude);
-                        //   print('2nd running.');
-                        //   roomProvider.addRoom();
-                        //   Navigator.pop(context);
-                        // }
                       }
                     },
                   )
