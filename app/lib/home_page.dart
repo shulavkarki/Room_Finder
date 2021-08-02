@@ -12,7 +12,6 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool loading = false;
-
   int selectedIndex = 0;
   @override
   void initState() {
